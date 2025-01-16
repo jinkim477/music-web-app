@@ -25,8 +25,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<User> getUserBySpotifyId(@PathVariable String id) {
+        return ResponseEntity.ok(userService.getUserBySpotifyId(id));
+    }
+
+    @GetMapping("/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
     @PostMapping("/create")

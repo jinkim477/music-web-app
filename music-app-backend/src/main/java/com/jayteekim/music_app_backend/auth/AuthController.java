@@ -3,9 +3,12 @@ package com.jayteekim.music_app_backend.auth;
 import java.net.URI;
 import java.util.Map;
 
+import org.apache.catalina.connector.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.jayteekim.music_app_backend.user.User;
+import com.jayteekim.music_app_backend.user.UserRepository;
+
 @RestController
 public class AuthController {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${spotify.client.id}")
     private String clientId;
@@ -55,23 +64,92 @@ public class AuthController {
         // Exchange authorization code for access and refresh tokens
         RestTemplate restTemplate = new RestTemplate();
 
+        // Construct request to exchange code for tokens
         String tokenUrl = SPOTIFY_ACCOUNTS_URL + "/api/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        // Construct request body
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("code", code);
         body.add("redirect_uri", redirectUri);
 
+        // Send request
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
         ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
 
+        // Handle successful response
         if (response.getStatusCode() == HttpStatus.OK) {
-            return ResponseEntity.ok(response.getBody());
+            Map<String, Object> responseBody = response.getBody();
+            
+            // Extract tokens from response
+            String accessToken = (String) responseBody.get("access_token");
+            String refreshToken = (String) responseBody.get("refresh_token");
+            Integer expiresIn = (Integer) responseBody.get("expires_in");
+
+            // Find or create a user in the database
+            String userEmail = getUserEmailFromSpotify(accessToken); // need to create this helper function
+            User user = userRepository.findByEmail(userEmail).orElse(new User());
+            user.setEmail(userEmail);
+            user.setAccessToken(accessToken);
+            user.setRefreshToken(refreshToken);
+            user.setTokenExpiry(System.currentTimeMillis() + expiresIn * 1000L); // Convert seconds to milliseconds
+            
+            userRepository.save(user);
+
+            // Construct confirmation page, for testing before implementing frontend
+            String confirmationPage = "<html>" +
+                "<head><title>Spotify Auth Confirmation</title></head>" +
+                "<body>" +
+                "<h1>Login Successful!</h1>" +
+                "<p>Access Token: <code>" + accessToken + "</code></p>" +
+                "<p>Refresh Token: <code>" + refreshToken + "</code></p>" +
+                "<p>Expires In: " + expiresIn + " seconds</p>" +
+                "</body>" +
+                "</html>";
+            
+            // todo: save tokens to database
+
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+                .body(confirmationPage);
         }
 
-        return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        // Handle error response
+        String errorPage = "<html>" +
+            "<head><title>Spotify Auth Error</title></head>" +
+            "<body>" +
+            "<h1>Login Failed</h1>" +
+            "<p>Error during token exchange: " + response.getBody() + "</p>" +
+            "</body>" +
+            "</html>";
+
+        return ResponseEntity.status(response.getStatusCode())
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+            .body(errorPage);
+    }
+
+    private String getUserEmailFromSpotify(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = "https://api.spotify.com/v1/me";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, request, Map.class);
+        
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("email")) {
+                return (String) responseBody.get("email");
+            } else {
+                throw new RuntimeException("Email not found in Spotify response");
+            }
+        }
+        throw new RuntimeException("Failed to fetch user profile: " + response.getStatusCode());
     }
 }

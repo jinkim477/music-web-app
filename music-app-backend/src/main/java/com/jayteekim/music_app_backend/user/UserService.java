@@ -15,8 +15,14 @@ public class UserService {
         return (ArrayList<User>) userRepository.findAll();
     }
 
-    public User getUserById(String id) {
-        return userRepository.findById(id).orElse(null);
+    public User getUserBySpotifyId(String id) {
+        return userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found with Spotify ID: " + id));
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 
     public User createUser(User user) {

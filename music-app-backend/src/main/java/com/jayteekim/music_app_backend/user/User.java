@@ -12,8 +12,11 @@ public class User {
     private String spotifyId;
     private String username;
     private String email;
+
     private String accessToken;
     private String refreshToken;
+    private Long tokenExpiry; // Unix timestamp for when the access token expires
+
     private ArrayList<String> playlistIds = new ArrayList<>();
     private ArrayList<String> albumIds = new ArrayList<>();
 
@@ -74,6 +77,14 @@ public class User {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public Long getTokenExpiry() {
+        return tokenExpiry;
+    }
+    
+    public void setTokenExpiry(Long tokenExpiry) {
+        this.tokenExpiry = tokenExpiry;
     }
 
     public ArrayList<String> getPlaylistIds() {
