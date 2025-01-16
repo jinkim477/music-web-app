@@ -1,2 +1,2 @@
 # music-web-app
-Music streaming web app utilizing Spotify API
+Music Streaming Web App Utilizing Spotify API
