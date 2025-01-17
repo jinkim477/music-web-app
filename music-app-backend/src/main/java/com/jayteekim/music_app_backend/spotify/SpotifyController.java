@@ -16,71 +16,34 @@ import com.jayteekim.music_app_backend.user.UserRepository;
 @RestController
 public class SpotifyController {
 
-    private static final String SPOTIFY_API_URL = "https://api.spotify.com/v1";
+    private final SpotifyService spotifyService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @GetMapping("/api/user")
-    public ResponseEntity<String> getUserInfo(@RequestParam String userId) {
-        User user = userRepository.findById(userId).orElse(null);
-
-        if (user == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // Use the access token to make a request to Spotify API
-        String accessToken = user.getAccessToken();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                "https://api.spotify.com/v1/me",
-                HttpMethod.GET,
-                entity,
-                String.class
-        );
-
-        // Parse response and return
-        return ResponseEntity.ok(response.getBody());
+    public SpotifyController(SpotifyService spotifyService) {
+        this.spotifyService = spotifyService;
     }
 
-    @GetMapping("/api/search")
-    public ResponseEntity<String> search(@RequestParam String query, @RequestParam String type) {
-        String accessToken = "your_access_token"; // Replace with actual access token
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        String url = SPOTIFY_API_URL + "/search?q=" + query + "&type=" + type;
-        ResponseEntity<String> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                String.class
-        );
-
-        return ResponseEntity.ok(response.getBody());
+    // Endpoint for searching tracks
+    @GetMapping("/api/spotify/search/tracks")
+    public ResponseEntity<?> searchTracks(@RequestParam String query) {
+        return ResponseEntity.ok(spotifyService.searchTracks(query));
     }
 
-    @GetMapping("/api/artist/discography")
-    public ResponseEntity<String> getArtistsDiscography(@RequestParam String artistId) {
-        String accessToken = "your token";// Retrieve stored access token
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        String url = SPOTIFY_API_URL + "/artists/" + artistId + "/albums";
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-        return ResponseEntity.ok(response.getBody());
+    // Endpoint for searching albums
+    @GetMapping("/api/spotify/search/albums")
+    public ResponseEntity<?> searchAlbums(@RequestParam String query) {
+        return ResponseEntity.ok(spotifyService.searchAlbums(query));
     }
+
+    // Endpoint for searching artists
+    @GetMapping("/api/spotify/search/artists")
+    public ResponseEntity<?> searchArtists(@RequestParam String query) {
+        return ResponseEntity.ok(spotifyService.searchArtists(query));
+    }
+
+    // Endpoint for getting artist discography (albums)
+    @GetMapping("/api/spotify/artists/discography")
+    public ResponseEntity<?> getArtistDiscography(@RequestParam String artistId) {
+        return ResponseEntity.ok(spotifyService.getArtistDiscography(artistId));
+    }
+    
 }

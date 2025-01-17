@@ -1,39 +1,96 @@
 package com.jayteekim.music_app_backend.spotify;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
 public class SpotifyService {
+    
+    @Value("${spotify.client.id}")
+    private String clientId;
 
-    private static final String REFRESH_URL = "https://accounts.spotify.com/api/token";
-    private static final String CLIENT_ID = "your_client_id"; // Replace with your actual client ID
-    private static final String CLIENT_SECRET = "your_client_secret"; // Replace with your actual client secret
+    @Value("${spotify.client.secret}")
+    private String clientSecret;
 
-    @Autowired
-    private RestTemplate restTemplate;
+    @Value("${spotify.redirect.uri}")
+    private String redirectUri;
 
-    public String refreshAccessToken(String refreshToken) {
-        MultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
-        requestParams.add("grant_type", "refresh_token");
-        requestParams.add("refresh_token", refreshToken);
+    private final String SPOTIFY_API_URL = "https://api.spotify.com/v1";
+
+    private final RestTemplate restTemplate;
+
+    public SpotifyService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    // Method for searching tracks
+    // public String searchTracks(String query) {
+    //     String url = UriComponentsBuilder.fromUriString(SPOTIFY_API_URL + "/search")
+    //             .queryParam("q", query)
+    //             .queryParam("type", "track")
+    //             .build()
+    //             .toUriString();
+    //     return restTemplate.getForObject(url, String.class);
+    // }
+    public List<Track> searchTracks(String query, String accessToken) {
+        String url = "https://api.spotify.com/v1/search";
+        RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth(CLIENT_ID, CLIENT_SECRET);
+        headers.setBearerAuth(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestParams, headers);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
+                .queryParam("q", query)
+                .queryParam("type", "track");
+        
+        ResponseEntity<Map> response = restTemplate.exchange(
+            builder.toUriString(),
+            HttpMethod.GET,
+            entity,
+            Map.class
+        );
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(REFRESH_URL, requestEntity, Map.class);
-
-        String newAccessToken = response.getBody().get("access_token").toString();
-        return newAccessToken;
+        return parseTrackResponse(response.getBody()); // todo: implement this method or find another way to parse the response
     }
+
+    // Method for searching albums
+    public String searchAlbums(String query) {
+        String url = UriComponentsBuilder.fromUriString(SPOTIFY_API_URL + "/search")
+                .queryParam("q", query)
+                .queryParam("type", "album")
+                .build()
+                .toUriString();
+        return restTemplate.getForObject(url, String.class);
+    }
+
+    // Method for searching artists
+    public String searchArtists(String query) {
+        String url = UriComponentsBuilder.fromUriString(SPOTIFY_API_URL + "/search")
+                .queryParam("q", query)
+                .queryParam("type", "artist")
+                .build()
+                .toUriString();
+        return restTemplate.getForObject(url, String.class);
+    }
+
+    // Method to get artists discography
+    public String getArtistDiscography(String artistId) {
+        String url = SPOTIFY_API_URL + "/artists/" + artistId + "/albums";
+        return restTemplate.getForObject(url, String.class);
+    }
+
+
 }
