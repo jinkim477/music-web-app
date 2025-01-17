@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -24,8 +26,14 @@ public class SpotifyController {
 
     // Endpoint for searching tracks
     @GetMapping("/api/spotify/search/tracks")
-    public ResponseEntity<?> searchTracks(@RequestParam String query) {
-        return ResponseEntity.ok(spotifyService.searchTracks(query));
+    public ResponseEntity<?> searchTracks(@RequestParam String query, @RequestHeader("Authorization") String authHeader) {
+        String accessToken = authHeader.substring("Bearer ".length());
+
+        try {
+            return ResponseEntity.ok(spotifyService.searchTracks(query, accessToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
     }
 
     // Endpoint for searching albums
