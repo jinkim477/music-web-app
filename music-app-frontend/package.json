@@ -9,13 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tsparticles/engine": "^3.7.1",
+    "@tsparticles/react": "^3.0.0",
+    "@tsparticles/slim": "^3.7.1",
+    "antd": "^5.23.1",
     "axios": "^1.7.9",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.18.1",
     "next": "15.1.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/antd": "^0.12.32",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
