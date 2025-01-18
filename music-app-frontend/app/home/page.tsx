@@ -2,6 +2,11 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import MobileNav from "@/components/MobileNav";
+import Discover from "@/components/Discover";
+import Artists from "@/components/Artists";
+import Search from "@/components/Search";
+import Albums from "@/components/Albums";
+import Playlists from "@/components/Playlists";
 
 const HomePage = () => {
 	const searchParams = useSearchParams();
@@ -12,37 +17,15 @@ const HomePage = () => {
 	const renderContent = () => {
 		switch (activeTab) {
 			case "discover":
-				return (
-					<div>
-						<h1>Discover</h1>
-					</div>
-				);
+				return <Discover />;
 			case "artists":
-				return (
-					<div>
-						<h1>Artists</h1>
-					</div>
-				);
+				return <Artists />;
 			case "search":
-				return (
-					<div>
-						<h1>Search</h1>
-					</div>
-				);
-
+				return <Search />;
 			case "albums":
-				return (
-					<div>
-						<h1>Albums</h1>
-					</div>
-				);
-
+				return <Albums />;
 			case "playlists":
-				return (
-					<div>
-						<h1>Playlists</h1>
-					</div>
-				);
+				return <Playlists />;
 		}
 	};
 

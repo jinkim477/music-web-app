@@ -4,8 +4,8 @@ const MobileNav = ({ onNavClick }) => {
 	return (
 		<div className="w-full mx-4">
 			<ul className="menu menu-horizontal menu-lg bg-base-200 rounded-box flex justify-around">
-				<li className="flex flex-col items-center justify-center">
-					<a className="p-2 pb-1" onClick={() => onNavClick("discover")}>
+				<li className="flex flex-col items-center justify-center" onClick={() => onNavClick("discover")}>
+					<a className="p-2 pb-1" >
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
@@ -23,8 +23,8 @@ const MobileNav = ({ onNavClick }) => {
 					</a>
                     <span className="text-xs p-2 pt-1">discover</span>
 				</li>
-				<li className="flex flex-col items-center justify-center">
-					<a className="p-2 pb-1" onClick={() => onNavClick("artists")}>
+				<li className="flex flex-col items-center justify-center" onClick={() => onNavClick("artists")}>
+					<a className="p-2 pb-1" >
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
@@ -44,8 +44,8 @@ const MobileNav = ({ onNavClick }) => {
 					</a>
                     <span className="text-xs p-2 pt-1">artists</span>
 				</li>
-				<li className="flex flex-col items-center justify-center">
-					<a className="p-2 pb-1" onClick={() => onNavClick("search")}>
+				<li className="flex flex-col items-center justify-center" onClick={() => onNavClick("search")}>
+					<a className="p-2 pb-1" >
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
@@ -63,8 +63,8 @@ const MobileNav = ({ onNavClick }) => {
 					</a>
                     <span className="text-xs p-2 pt-1">search</span>
 				</li>
-				<li className="flex flex-col items-center justify-center">
-					<a className="p-2 pb-1" onClick={() => onNavClick("albums")}>
+				<li className="flex flex-col items-center justify-center" onClick={() => onNavClick("albums")}>
+					<a className="p-2 pb-1" >
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
@@ -84,8 +84,8 @@ const MobileNav = ({ onNavClick }) => {
 					</a>
                     <span className="text-xs p-2 pt-1">albums</span>
 				</li>
-				<li className="flex flex-col items-center justify-center">
-					<a className="p-2 pb-1" onClick={() => onNavClick("playlists")}>
+				<li className="flex flex-col items-center justify-center" onClick={() => onNavClick("playlists")}>
+					<a className="p-2 pb-1" >
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
