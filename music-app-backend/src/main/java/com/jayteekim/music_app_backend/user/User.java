@@ -19,6 +19,7 @@ public class User {
 
     private ArrayList<String> playlistIds = new ArrayList<>();
     private ArrayList<String> albumIds = new ArrayList<>();
+    private ArrayList<String> artistIds = new ArrayList<>();
 
     public User() {
     }
@@ -117,5 +118,13 @@ public class User {
 
     public void removeAlbumId(String albumId) {
         this.albumIds.remove(albumId);
+    }
+
+    public ArrayList<String> getArtistIds() {
+        return artistIds;
+    }
+
+    public void setArtistIds(ArrayList<String> artistIds) {
+        this.artistIds = artistIds;
     }
 }
